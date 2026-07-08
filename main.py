@@ -1,13 +1,23 @@
-"""Application entry point for CareerPilot AI."""
+"""FastAPI application entry point for CareerPilot AI."""
 
+from fastapi import FastAPI
+
+from app.api.routes import router
 from app.core.logging import configure_logging
 
 
-def main() -> None:
-    """Initialize application-level services."""
+def create_app() -> FastAPI:
+    """Create and configure the FastAPI application."""
 
     configure_logging()
 
+    app = FastAPI(
+        title="CareerPilot AI",
+        description="Minimal FastAPI backend bootstrap for CareerPilot AI.",
+        version="0.1.0",
+    )
+    app.include_router(router)
+    return app
 
-if __name__ == "__main__":
-    main()
+
+app = create_app()

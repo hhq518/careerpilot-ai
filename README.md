@@ -2,16 +2,26 @@
 
 CareerPilot AI is a planned production-quality, agentic AI career assistant. The project is starting with a clean Python foundation that can evolve into a modular system for multi-agent collaboration, career guidance workflows, long-term memory, retrieval-augmented generation, observability, and evaluation.
 
-This repository currently contains only the initial project skeleton. Business logic, API endpoints, user interfaces, agents, RAG, memory, and tool-calling features are not implemented yet.
+This repository now includes a minimal FastAPI backend bootstrap with beginner-friendly health and configuration-check endpoints. User interfaces, agents, RAG, memory, LLM calls, and tool-calling features are not implemented yet.
+
+## Local Development
+
+Install dependencies, then start the local FastAPI server with:
+
+```bash
+uvicorn main:app --reload
+```
+
+After the server starts, visit `http://127.0.0.1:8000/` for the health check, `http://127.0.0.1:8000/config-check` for a safe configuration import check, or `http://127.0.0.1:8000/docs` for the FastAPI Swagger UI.
 
 ## Planned Architecture
 
 The intended architecture will separate application concerns into focused modules:
 
-- **Application entry point** for starting the project in future runtime environments.
+- **Application entry point** for creating the FastAPI application.
 - **Core infrastructure** for configuration and logging shared across the application.
 - **Agent modules** for future planning, resume, interview, career advisor, and learning agents.
-- **API layer** for a future FastAPI backend.
+- **API layer** for minimal FastAPI routes and future backend modules.
 - **Memory layer** for future long-term and session memory capabilities.
 - **Model layer** for future domain and data schemas.
 - **Prompt layer** for future prompt templates and prompt management.
@@ -24,7 +34,7 @@ The intended architecture will separate application concerns into focused module
 ```text
 app/
   agents/    Future AI agent modules.
-  api/       Future backend API modules.
+  api/       FastAPI route modules.
   core/      Shared configuration and logging utilities.
   memory/    Future memory components.
   models/    Future application schemas and data models.
@@ -33,7 +43,7 @@ app/
   tools/     Future tool-calling integrations.
 docs/        Project documentation.
 tests/       Automated tests.
-main.py      Application entry point placeholder.
+main.py      FastAPI application entry point.
 ```
 
 ## Development Roadmap
