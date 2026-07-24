@@ -1,1 +1,5 @@
-"""Package reserved for future CareerPilot AI agents components."""
+"""CareerPilot AI agent abstractions."""
+
+from app.agents.base import BaseAgent
+
+__all__ = ["BaseAgent"]
