@@ -2,7 +2,7 @@
 
 CareerPilot AI is a planned production-quality, agentic AI career assistant. The project is starting with a clean Python foundation that can evolve into a modular system for multi-agent collaboration, career guidance workflows, long-term memory, retrieval-augmented generation, observability, and evaluation.
 
-This repository now includes a minimal FastAPI backend bootstrap with beginner-friendly health, configuration-check, and chat endpoints. User interfaces, agents, RAG, memory, real LLM provider calls, and tool-calling features are not implemented yet. A minimal provider-independent LLM Client layer and service layer are available so future agents have safe boundaries for model access and business logic.
+This repository now includes a minimal FastAPI backend bootstrap with beginner-friendly health, configuration-check, and chat endpoints. User interfaces, specialized agents, RAG, memory, real LLM provider calls, and tool-calling features are not implemented yet. A minimal provider-independent LLM Client layer, service layer, and Agent base layer are available so future agents have safe boundaries for model access and business logic.
 
 ## Local Development
 
@@ -16,7 +16,7 @@ After the server starts, visit `http://127.0.0.1:8000/` for the health check, `h
 
 ## Chat Endpoint
 
-`POST /chat` accepts a JSON body with a `message` field. The route calls `ChatService`, which validates the message and then uses the placeholder `LLMClient.chat()` method. It does not call a real LLM provider yet, and it does not implement agents, RAG, or memory.
+`POST /chat` accepts a JSON body with a `message` field. The route calls `ChatService`, which validates the message and then uses the placeholder `LLMClient.chat()` method. It does not call a real LLM provider yet, and it does not implement specialized agents, RAG, or memory.
 
 Example request:
 
@@ -46,7 +46,7 @@ The intended architecture will separate application concerns into focused module
 - **Application entry point** for creating the FastAPI application.
 - **Core infrastructure** for configuration, logging, and the provider-independent LLM Client shared across the application.
 - **Service layer** for business logic between API routes and the LLM client, agents, memory, or RAG.
-- **Agent modules** for future planning, resume, interview, career advisor, and learning agents.
+- **Agent modules** with a shared `BaseAgent` foundation for future planning, resume, interview, career advisor, and learning agents.
 - **API layer** for minimal FastAPI routes and future backend modules.
 - **Memory layer** for future long-term and session memory capabilities.
 - **Model layer** for future domain and data schemas.
@@ -55,11 +55,17 @@ The intended architecture will separate application concerns into focused module
 - **Tool layer** for future tool-calling integrations.
 - **Documentation and tests** to support maintainability as the system grows.
 
+## Agent Base Layer
+
+The first Agent abstraction lives in `app/agents/base.py`. `BaseAgent` gives future agents a shared name, description, `LLMClient` dependency, and `run(task: str) -> str` method. This is intentionally small: it does not introduce LangChain, LangGraph, memory, RAG, tools, function calling, or multi-agent collaboration.
+
+Future CareerPilot agents can inherit from `BaseAgent` when they need a consistent interface for focused workflows, such as resume feedback, interview coaching, career planning, or learning path guidance. Keeping agents dependent on `LLMClient` instead of provider SDKs directly will make it easier to add real model providers later while keeping API keys and vendor-specific logic isolated in the core layer.
+
 ## Folder Explanation
 
 ```text
 app/
-  agents/    Future AI agent modules.
+  agents/    Shared BaseAgent abstraction and future AI agent modules.
   api/       FastAPI route modules.
   core/      Shared configuration, logging, and LLM client utilities.
   memory/    Future memory components.
@@ -79,7 +85,7 @@ main.py      FastAPI application entry point.
 2. Add baseline development tooling and automated tests.
 3. Introduce the FastAPI backend structure.
 4. Extend the LLM Client with real provider integrations while keeping secrets isolated.
-5. Add initial agent interfaces and orchestration boundaries.
+5. Expand from the initial BaseAgent interface into focused agent workflows and orchestration boundaries.
 6. Implement memory and RAG foundations.
 7. Add tool-calling integrations and MCP support.
 8. Add observability, evaluation workflows, and deployment assets.
