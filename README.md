@@ -2,7 +2,7 @@
 
 CareerPilot AI is a planned production-quality, agentic AI career assistant. The project is starting with a clean Python foundation that can evolve into a modular system for multi-agent collaboration, career guidance workflows, long-term memory, retrieval-augmented generation, observability, and evaluation.
 
-This repository now includes a minimal FastAPI backend bootstrap with beginner-friendly health, configuration-check, and chat endpoints. User interfaces, specialized agents, RAG, memory, real LLM provider calls, and tool-calling features are not implemented yet. A minimal provider-independent LLM Client layer, service layer, Agent base layer, and prompt management layer are available so future agents have safe boundaries for model access, business logic, and role-specific instructions.
+This repository now includes a minimal FastAPI backend bootstrap with beginner-friendly health, configuration-check, and chat endpoints. User interfaces, specialized agents, RAG, persistent memory, real LLM provider calls, and tool-calling features are not implemented yet. A minimal provider-independent LLM Client layer, service layer, runtime memory component, Agent base layer, and prompt management layer are available so future agents have safe boundaries for model access, business logic, and role-specific instructions.
 
 ## Local Development
 
@@ -16,13 +16,14 @@ After the server starts, visit `http://127.0.0.1:8000/` for the health check, `h
 
 ## Chat Endpoint
 
-`POST /chat` accepts a JSON body with a `message` field. The route calls `ChatService`, which validates the message and then uses the placeholder `LLMClient.chat()` method. It does not call a real LLM provider yet, and it does not implement specialized agents, RAG, or memory.
+`POST /chat` accepts a JSON body with `user_id` and `message` fields. The `user_id` identifies which user's memory should be retrieved; it is not an authentication mechanism. The route calls `ChatService`, which validates the message, retrieves that user's runtime memory, combines the memory context with the current task, and sends the enriched prompt to the placeholder `LLMClient.chat()` method. It does not call a real LLM provider yet, and it does not implement specialized agents or RAG.
 
 Example request:
 
 ```json
 {
-  "message": "Help me plan my next career move."
+  "user_id": "hhq518",
+  "message": "help me plan my AI career"
 }
 ```
 
@@ -39,6 +40,26 @@ Example response:
 
 Empty or whitespace-only messages return a safe validation error instead of reaching the LLM client.
 
+## Current Memory Flow
+
+The current chat flow keeps each layer focused on one responsibility:
+
+```text
+POST /chat request
+    ↓
+ChatService validates the message
+    ↓
+MemoryManager looks up records by user_id
+    ↓
+ChatService combines memory with the current user task
+    ↓
+LLMClient.chat() receives the enriched prompt
+```
+
+`ChatService` coordinates the lookup and model call because they are business workflow concerns, while `MemoryManager` stays independent from Agent logic and provider code. This separation will allow the memory implementation to change without redesigning agents.
+
+Memory is currently stored only in the running application's process. It is cleared whenever the process restarts and is not shared between multiple server processes. A future version may replace this runtime-only implementation with database or other persistent storage; the current version intentionally does not provide persistence.
+
 ## Planned Architecture
 
 The intended architecture will separate application concerns into focused modules:
@@ -48,7 +69,7 @@ The intended architecture will separate application concerns into focused module
 - **Service layer** for business logic between API routes and the LLM client, agents, memory, or RAG.
 - **Agent modules** with a shared `BaseAgent` foundation for future planning, resume, interview, career advisor, and learning agents.
 - **API layer** for minimal FastAPI routes and future backend modules.
-- **Memory layer** for future long-term and session memory capabilities.
+- **Memory layer** for current per-user runtime records and future persistent memory capabilities.
 - **Model layer** for future domain and data schemas.
 - **Prompt layer** for future prompt templates and prompt management.
 - **RAG layer** for future retrieval and knowledge workflows.
@@ -82,7 +103,7 @@ app/
   agents/    Shared BaseAgent abstraction and future AI agent modules.
   api/       FastAPI route modules.
   core/      Shared configuration, logging, and LLM client utilities.
-  memory/    Future memory components.
+  memory/    Per-user runtime memory and future persistent memory components.
   services/  Business logic between API routes and core/future agent modules.
   models/    Future application schemas and data models.
   prompts/   Agent system prompt templates and future prompt utilities.
