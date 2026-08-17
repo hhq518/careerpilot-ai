@@ -2,7 +2,8 @@
 
 from app.core.llm import LLMClient
 from app.memory.memory_manager import MemoryManager
-
+from app.agents.supervisor_agent import SupervisorAgent
+from app.agents import AgentRegistry
 
 class ChatService:
     """Handle chat-related business flow between API routes and the LLM client."""
@@ -11,11 +12,17 @@ class ChatService:
         self,
         llm_client: LLMClient | None = None,
         memory_manager: MemoryManager | None = None,
+        supervisor: SupervisorAgent | None = None,
     ) -> None:
         """Create the service with its LLM and memory dependencies."""
 
         self._llm_client = llm_client or LLMClient()
         self._memory_manager = memory_manager or MemoryManager()
+        self._supervisor = supervisor or SupervisorAgent(
+            AgentRegistry(
+                llm_client=self._llm_client
+    )
+)
 
     def handle_message(self, user_id: str, message: str) -> dict[str, str]:
         """Validate a user message and return the placeholder LLM response."""
@@ -45,7 +52,7 @@ class ChatService:
 
         # ChatService coordinates memory lookup and the LLM call because this
         # is application workflow, while the route handles only HTTP concerns.
-        response = self._llm_client.chat(enriched_prompt)
+        response = self._supervisor.handle(enriched_prompt)
 
         # MemoryManager stays separate from Agent logic so storage can later
         # change without coupling agents to an in-memory or database backend.

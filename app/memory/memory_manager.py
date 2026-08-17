@@ -2,62 +2,42 @@
 
 
 class MemoryManager:
-    """Keep separate runtime memory records for each user."""
+    """
+    Keep separate runtime memory records for each user.
+
+    This is runtime-only memory.
+    Data will be lost when the server stops.
+    """
 
     def __init__(self) -> None:
-        """Create an empty memory store."""
+        self._memory_store: dict[str, list[str]] = {}
 
-        self._memories: dict[str, list[str]] = {}
+    def save_memory(self, user_id: str, memory: str) -> None:
+        """
+        Save one memory record for a user.
+        """
 
-    def add_memory(self, user_id: str, memory: str) -> None:
-        """Append one memory record for a user."""
+        cleaned_user_id = user_id.strip()
+        cleaned_memory = memory.strip()
 
-        self._memories.setdefault(user_id, []).append(memory)
+        if not cleaned_user_id:
+            raise ValueError("user_id must not be empty.")
+
+        if not cleaned_memory:
+            return
+
+        self._memory_store.setdefault(cleaned_user_id, []).append(cleaned_memory)
 
     def get_memory(self, user_id: str) -> list[str]:
-        """Return a copy of a user's records, or an empty list when unknown."""
-
-        return list(self._memories.get(user_id, []))
-"""Memory management utilities."""
-
-from typing import Dict
-
-
-class MemoryManager:
-    """
-    Manage user memories.
-
-    This is the first simple version.
-    Later it can be replaced by SQLite,
-    Redis, or vector databases.
-    """
-
-    def __init__(self):
-        # Temporary in-memory storage.
-        # Key: user_id
-        # Value: user memory text
-        self._memory_store: Dict[str, str] = {}
-
-    def save_memory(
-        self,
-        user_id: str,
-        memory: str,
-    ) -> None:
         """
-        Save memory for a user.
+        Return memory records for a user.
+
+        A copy is returned so callers cannot modify the internal memory list.
         """
 
-        self._memory_store[user_id] = memory
+        cleaned_user_id = user_id.strip()
 
-    def get_memory(
-        self,
-        user_id: str,
-    ) -> str:
-        """
-        Retrieve user memory.
-        """
+        if not cleaned_user_id:
+            raise ValueError("user_id must not be empty.")
 
-        return self._memory_store.get(
-            user_id,
-            "",
-        )
+        return list(self._memory_store.get(cleaned_user_id, []))

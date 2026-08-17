@@ -5,6 +5,7 @@ from app.agents.resume_agent import ResumeAgent
 from app.agents.interview_agent import InterviewAgent
 from app.agents.career_agent import CareerAgent
 from app.agents.registry import AgentRegistry
+from app.agents.supervisor_agent import SupervisorAgent
 
 __all__ = [
     "BaseAgent",
@@ -12,4 +13,5 @@ __all__ = [
     "InterviewAgent",
     "CareerAgent",
     "AgentRegistry",
+    "SupervisorAgent",
 ]

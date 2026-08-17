@@ -17,8 +17,8 @@ class RecordingLLMClient:
 
 def test_users_have_separate_memory_records() -> None:
     manager = MemoryManager()
-    manager.add_memory("alice", "Interested in machine learning")
-    manager.add_memory("bob", "Preparing for backend interviews")
+    manager.save_memory("alice", "Interested in machine learning")
+    manager.save_memory("bob", "Preparing for backend interviews")
 
     assert manager.get_memory("alice") == ["Interested in machine learning"]
     assert manager.get_memory("bob") == ["Preparing for backend interviews"]
@@ -26,7 +26,7 @@ def test_users_have_separate_memory_records() -> None:
 
 def test_chat_service_accepts_user_id_and_enriches_prompt() -> None:
     manager = MemoryManager()
-    manager.add_memory("alice", "Interested in machine learning")
+    manager.save_memory("alice", "Interested in machine learning")
     llm_client = RecordingLLMClient()
     service = ChatService(llm_client=llm_client, memory_manager=manager)
 

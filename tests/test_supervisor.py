@@ -1,28 +1,21 @@
+from app.agents import AgentRegistry
 from app.agents.supervisor_agent import SupervisorAgent
 
 
-def test_supervisor():
+def test_supervisor_handle():
 
-    supervisor = SupervisorAgent()
+    registry = AgentRegistry()
 
-    print(
-        supervisor.decide(
-            "帮我优化AI岗位简历"
-        )
+    supervisor = SupervisorAgent(
+        registry
     )
 
-    print(
-        supervisor.decide(
-            "帮我模拟大模型应用开发面试"
-        )
+    result = supervisor.handle(
+        "帮我优化AI岗位简历"
     )
 
-    print(
-        supervisor.decide(
-            "帮我规划AI职业路线"
-        )
-    )
+    print(result)
 
 
 if __name__ == "__main__":
-    test_supervisor()
+    test_supervisor_handle()

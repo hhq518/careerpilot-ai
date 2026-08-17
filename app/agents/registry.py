@@ -1,24 +1,26 @@
 """Agent registry for managing available agents."""
 
-from app.agents.resume_agent import ResumeAgent
-from app.agents.interview_agent import InterviewAgent
 from app.agents.career_agent import CareerAgent
+from app.agents.interview_agent import InterviewAgent
+from app.agents.resume_agent import ResumeAgent
+from app.core.llm import LLMClient
 
 
 class AgentRegistry:
     """
     Store and provide available agents.
 
-    Future router/supervisor agents
-    will use this registry to select
-    the correct agent.
+    The registry only looks up agents.
+    It does not decide which agent to use and does not execute them.
     """
 
-    def __init__(self):
+    def __init__(self, llm_client: LLMClient | None = None) -> None:
+        shared_llm_client = llm_client or LLMClient()
+
         self.agents = {
-            "resume": ResumeAgent(),
-            "interview": InterviewAgent(),
-            "career": CareerAgent(),
+            "resume": ResumeAgent(llm_client=shared_llm_client),
+            "interview": InterviewAgent(llm_client=shared_llm_client),
+            "career": CareerAgent(llm_client=shared_llm_client),
         }
 
     def get_agent(self, name: str):
@@ -26,4 +28,16 @@ class AgentRegistry:
         Return an agent by name.
         """
 
-        return self.agents.get(name)
+        agent = self.agents.get(name)
+
+        if not agent:
+            raise ValueError(f"Agent {name} not found.")
+
+        return agent
+
+    def list_agent_names(self) -> list[str]:
+        """
+        Return available agent names.
+        """
+
+        return list(self.agents.keys())
