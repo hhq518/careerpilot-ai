@@ -1,10 +1,12 @@
 """Provider-independent LLM client abstraction for CareerPilot AI."""
 
+from openai import OpenAI
+
 from app.core.config import Settings, get_settings
 
 
 class LLMClient:
-    """Small boundary between CareerPilot agents and future model providers."""
+    """Small boundary between CareerPilot agents and model providers."""
 
     def __init__(self, settings: Settings | None = None) -> None:
         """Create an LLM client using application settings."""
@@ -12,17 +14,38 @@ class LLMClient:
         self._settings = settings or get_settings()
 
     def chat(self, message: str) -> str:
-        """Return a placeholder chat response until provider integration is added."""
+        """
+        Send a message to the configured LLM provider.
 
-        # LLMClient exists so the rest of the app has one simple place to ask
-        # for language-model responses instead of depending on vendor SDKs.
-        # Future agents should call this abstraction, not model providers
-        # directly, so provider details and secrets stay isolated in core code.
-        # Keeping this boundary small will make it easier to switch models or
-        # add providers later without rewriting agent, RAG, or workflow logic.
-        _ = message
-        _ = self._settings
-        return (
-            "LLM provider integration is not configured yet. "
-            "A real model response will be added in a future implementation."
+        For now, CareerPilot AI uses DashScope/Qwen through
+        an OpenAI-compatible API.
+        """
+
+        if not self._settings.dashscope_api_key:
+            return (
+                "LLM provider integration is not configured yet. "
+                "Please set DASHSCOPE_API_KEY in your .env file."
+            )
+
+        client = OpenAI(
+            api_key=self._settings.dashscope_api_key,
+            base_url=self._settings.dashscope_base_url,
         )
+
+        response = client.chat.completions.create(
+            model=self._settings.dashscope_model,
+            messages=[
+                {
+                    "role": "user",
+                    "content": message,
+                }
+            ],
+            temperature=0.3,
+        )
+
+        content = response.choices[0].message.content
+
+        if not content:
+            return "The model returned an empty response."
+
+        return content
