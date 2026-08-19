@@ -1,12 +1,13 @@
-"""Chat service for coordinating chat requests before agents exist."""
+"""Chat service for coordinating memory and the agent pipeline."""
 
 from app.core.llm import LLMClient
 from app.memory.memory_manager import MemoryManager
 from app.agents.supervisor_agent import SupervisorAgent
 from app.agents import AgentRegistry
 
+
 class ChatService:
-    """Handle chat-related business flow between API routes and the LLM client."""
+    """Handle chat business flow between API routes and the agent pipeline."""
 
     def __init__(
         self,
@@ -19,13 +20,11 @@ class ChatService:
         self._llm_client = llm_client or LLMClient()
         self._memory_manager = memory_manager or MemoryManager()
         self._supervisor = supervisor or SupervisorAgent(
-            AgentRegistry(
-                llm_client=self._llm_client
-    )
-)
+            AgentRegistry(llm_client=self._llm_client)
+        )
 
     def handle_message(self, user_id: str, message: str) -> dict[str, str]:
-        """Validate a user message and return the placeholder LLM response."""
+        """Validate a user message and return the agent pipeline response."""
 
         # The service layer exists so routes stay focused on HTTP details such
         # as request bodies, response formats, and status codes.
@@ -59,6 +58,6 @@ class ChatService:
         return {
             "input": cleaned_message,
             "response": response,
-            "provider_status": "placeholder",
+            "provider_status": self._llm_client.provider_status,
             "service": "chat_service",
         }

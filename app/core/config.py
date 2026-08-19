@@ -23,11 +23,11 @@ def get_settings() -> Settings:
     """Return application settings."""
 
     return Settings(
-        dashscope_api_key=os.getenv("DASHSCOPE_API_KEY", ""),
+        dashscope_api_key=os.getenv("DASHSCOPE_API_KEY", "").strip(),
         dashscope_base_url=os.getenv(
             "DASHSCOPE_BASE_URL",
             "https://dashscope.aliyuncs.com/compatible-mode/v1",
         ),
-        dashscope_model=os.getenv("DASHSCOPE_MODEL", "qwen3.7-plus"),
-        openai_api_key=os.getenv("OPENAI_API_KEY", ""),
+        dashscope_model=os.getenv("DASHSCOPE_MODEL", "qwen-plus"),
+        openai_api_key=os.getenv("OPENAI_API_KEY", "").strip(),
     )
